@@ -17,7 +17,7 @@ def read_args():
         '''
     )
     parser.add_argument(
-        '--start_id',
+        'start_id',
         default=1,
         type=int,
         help='''
@@ -25,7 +25,7 @@ def read_args():
         '''
     )
     parser.add_argument(
-        '--end_id',
+        'end_id',
         default=10,
         type=int,
         help='''

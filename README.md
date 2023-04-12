@@ -30,7 +30,7 @@ pip3 install -r requirements.txt
 
 ## How to use
 
-Each book in tululu e-library identifies by id. Script accept two arguments: `--start_id` and `--end_id` to set a range books needs to be downloaded. By default script try to download books with ids from 1 to 10 (inclusively).
+Each book in tululu e-library identifies by id. Script accept two positional arguments: `start id` and `end id` to set a range books needs to be downloaded. By default script try to download books with ids from 1 to 10 (inclusively).
 
 Run script without arguments:
 ```
@@ -39,5 +39,5 @@ python3 main.py
 
 Run script with arguments:
 ```
-python3 main.py --start_id=20 --end_id=30
+python3 main.py 20 30
 ```
