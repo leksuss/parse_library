@@ -69,8 +69,6 @@ def parse_book_page(soup):
     cover_uri = soup.find(class_='bookimage').find('img')['src']
     cover_url = urljoin('https://tululu.org', cover_uri)
 
-    genre = soup.find('span', class_='d_book').find('a').text.strip()
-
     comments = []
     raw_comments = soup.find_all(class_='texts')
     for raw_comment in raw_comments:
@@ -87,7 +85,6 @@ def parse_book_page(soup):
 
 
 def download_book(book_id, book_folder, image_folder):
-
     url = f'https://tululu.org/b{book_id}/'
     response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
