@@ -1,3 +1,4 @@
+import argparse
 import os
 from urllib.parse import urljoin, urlsplit, unquote
 
@@ -9,8 +10,33 @@ BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
 
 
-def download_txt(url, filename, folder):
+def read_args():
+    parser = argparse.ArgumentParser(
+        description='''
+            Download books from tululu.org e-library
+        '''
+    )
+    parser.add_argument(
+        '--start_id',
+        default=1,
+        type=int,
+        help='''
+            From which book id to download
+        '''
+    )
+    parser.add_argument(
+        '--end_id',
+        default=10,
+        type=int,
+        help='''
+            Up to which book id to download
+        '''
+    )
+    args = parser.parse_args()
+    return args
 
+
+def download_txt(url, filename, folder):
     response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
 
@@ -70,29 +96,27 @@ def download_book(book_id, book_folder, image_folder):
         soup = BeautifulSoup(response.text, 'lxml')
         book = parse_book_page(soup)
 
-        filename = f'{book_id}. {sanitize_filename(book['title'])}.txt'
+        filename = f"{book_id}. {sanitize_filename(book['title'])}.txt"
         txt_url = f'https://tululu.org/txt.php?id={book_id}'
         filepath = download_txt(txt_url, filename, book_folder)
-
-        filename = unquote(urlsplit(book['cover_url']).path.split('/')[-1])
-        imgpath = download_img(img_url, filename, image_folder)
-
-        return filepath, imgpath
-    return None
+        if filepath:
+            download_img(book['cover_url'], image_folder)
+            return book['title'], book['author']
+    return None, None
 
 
-if __name__ == '__main__':
+def main():
+    args = read_args()
+
     os.makedirs(BOOKS_FOLDER, exist_ok=True)
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
-    url = 'https://tululu.org/b28586/'
+    for book_id in range(args.start_id, args.end_id):
+        title, author = download_book(book_id, BOOKS_FOLDER, IMAGES_FOLDER)
+        if title:
+            print('Название:', title)
+            print('Автор:', author, end='\n\n')
 
-    
-    response = requests.get(url, allow_redirects=False)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    print(parse_book_page(soup))
-    '''
-    for book_id in range(1, 2):
-        get_book(book_id, BOOKS_FOLDER, IMAGES_FOLDER)
-    '''
+
+if __name__ == '__main__':
+    main()
