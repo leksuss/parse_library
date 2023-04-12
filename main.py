@@ -111,7 +111,7 @@ def main():
     os.makedirs(BOOKS_FOLDER, exist_ok=True)
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
-    for book_id in range(args.start_id, args.end_id):
+    for book_id in range(args.start_id, args.end_id + 1):
         title, author = download_book(book_id, BOOKS_FOLDER, IMAGES_FOLDER)
         if title:
             print('Название:', title)
