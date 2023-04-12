@@ -22,12 +22,12 @@ def download_txt(url, filename, folder):
     return None
 
 
-def download_img(url, filename, folder):
-
+def download_img(url, folder):
     response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
 
     if response.content:
+        filename = unquote(urlsplit(url).path.split('/')[-1])
         filepath = os.path.join(folder, filename)
         with open(filepath, 'wb') as file:
             file.write(response.content)
@@ -35,7 +35,32 @@ def download_img(url, filename, folder):
     return None
 
 
-def get_book(book_id, book_folder, image_folder):
+def parse_book_page(soup):
+    title, author = soup.find(id='content').find('h1').text.split('::')
+
+    genre = soup.find('span', class_='d_book').find('a').text.strip()
+
+    cover_uri = soup.find(class_='bookimage').find('img')['src']
+    cover_url = urljoin('https://tululu.org', cover_uri)
+
+    genre = soup.find('span', class_='d_book').find('a').text.strip()
+
+    comments = []
+    raw_comments = soup.find_all(class_='texts')
+    for raw_comment in raw_comments:
+        comment = raw_comment.find(class_='black').text.strip()
+        comments.append(comment)
+
+    return {
+        'title': title.strip(),
+        'author': author.strip(),
+        'genre': genre,
+        'cover_url': cover_url,
+        'comments': comments,
+    }
+
+
+def download_book(book_id, book_folder, image_folder):
 
     url = f'https://tululu.org/b{book_id}/'
     response = requests.get(url, allow_redirects=False)
@@ -43,15 +68,13 @@ def get_book(book_id, book_folder, image_folder):
 
     if response.content:
         soup = BeautifulSoup(response.text, 'lxml')
-        title = soup.find(id='content').find('h1').text.split('::')[0].strip()
+        book = parse_book_page(soup)
 
-        filename = f'{book_id}. {sanitize_filename(title)}.txt'
+        filename = f'{book_id}. {sanitize_filename(book['title'])}.txt'
         txt_url = f'https://tululu.org/txt.php?id={book_id}'
         filepath = download_txt(txt_url, filename, book_folder)
 
-        img_uri = soup.find(class_='bookimage').find('img')['src']
-        img_url = urljoin('https://tululu.org', img_uri)
-        filename = unquote(urlsplit(img_uri).path.split('/')[-1])
+        filename = unquote(urlsplit(book['cover_url']).path.split('/')[-1])
         imgpath = download_img(img_url, filename, image_folder)
 
         return filepath, imgpath
@@ -62,5 +85,14 @@ if __name__ == '__main__':
     os.makedirs(BOOKS_FOLDER, exist_ok=True)
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
+    url = 'https://tululu.org/b28586/'
+
+    
+    response = requests.get(url, allow_redirects=False)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    print(parse_book_page(soup))
+    '''
     for book_id in range(1, 2):
         get_book(book_id, BOOKS_FOLDER, IMAGES_FOLDER)
+    '''
