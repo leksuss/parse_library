@@ -69,13 +69,13 @@ def download_img(url, folder):
     return None
 
 
-def parse_book_page(soup):
+def parse_book_page(book_url, soup):
     title, author = soup.find(id='content').find('h1').text.split('::')
 
     genre = soup.find('span', class_='d_book').find('a').text.strip()
 
     cover_uri = soup.find(class_='bookimage').find('img')['src']
-    cover_url = urljoin('https://tululu.org', cover_uri)
+    cover_url = urljoin(book_url, cover_uri)
 
     comments = []
     raw_comments = soup.find_all(class_='texts')
@@ -93,13 +93,13 @@ def parse_book_page(soup):
 
 
 def download_book(book_id, book_folder, image_folder):
-    url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(url, allow_redirects=False)
+    book_url = f'https://tululu.org/b{book_id}/'
+    response = requests.get(book_url, allow_redirects=False)
     response.raise_for_status()
 
     if response.content:
         soup = BeautifulSoup(response.text, 'lxml')
-        book = parse_book_page(soup)
+        book = parse_book_page(book_url, soup)
 
         filepath = download_txt(book_id, book['title'], book_folder)
 
