@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
+
 BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
 
@@ -36,8 +37,15 @@ def read_args():
     return args
 
 
-def download_txt(url, filename, folder):
-    response = requests.get(url, allow_redirects=False)
+def download_txt(book_id, book_title, folder):
+
+    filename = f"{book_id}. {sanitize_filename(book_title)}.txt"
+    url = 'https://tululu.org/txt.php'
+    params = {
+        'id': book_id,
+    }
+
+    response = requests.get(url, params=params, allow_redirects=False)
     response.raise_for_status()
 
     if response.content:
@@ -93,9 +101,8 @@ def download_book(book_id, book_folder, image_folder):
         soup = BeautifulSoup(response.text, 'lxml')
         book = parse_book_page(soup)
 
-        filename = f"{book_id}. {sanitize_filename(book['title'])}.txt"
-        txt_url = f'https://tululu.org/txt.php?id={book_id}'
-        filepath = download_txt(txt_url, filename, book_folder)
+        filepath = download_txt(book_id, book['title'], book_folder)
+
         if filepath:
             download_img(book['cover_url'], image_folder)
             return book['title'], book['author']
