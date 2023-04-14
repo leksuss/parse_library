@@ -1,5 +1,7 @@
 import argparse
 import os
+import time
+import sys
 from urllib.parse import urljoin, urlsplit, unquote
 
 import requests
@@ -9,6 +11,7 @@ from pathvalidate import sanitize_filename
 
 BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
+RETRY_TIMEOUT = 5  # in seconds
 
 
 def read_args():
@@ -39,6 +42,12 @@ def read_args():
     return args
 
 
+def check_for_redirect(responce):
+    if responce.status_code in (301, 302) or \
+       responce.url == 'https://tululu.org/':
+        raise requests.HTTPError()
+
+
 def download_txt(book_id, book_title, folder):
 
     filename = f"{book_id}. {sanitize_filename(book_title)}.txt"
@@ -47,28 +56,26 @@ def download_txt(book_id, book_title, folder):
         'id': book_id,
     }
 
-    response = requests.get(url, params=params, allow_redirects=False)
+    response = requests.get(url, params=params, timeout=5)
     response.raise_for_status()
+    check_for_redirect(response)
 
-    if response.content:
-        filepath = os.path.join(folder, filename)
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
-        return filepath
-    return None
+    filepath = os.path.join(folder, filename)
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
+    return filepath
 
 
 def download_img(url, folder):
-    response = requests.get(url, allow_redirects=False)
+    response = requests.get(url, timeout=5)
     response.raise_for_status()
+    check_for_redirect(response)
 
-    if response.content:
-        filename = unquote(urlsplit(url).path.split('/')[-1])
-        filepath = os.path.join(folder, filename)
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
-        return filepath
-    return None
+    filename = unquote(urlsplit(url).path.split('/')[-1])
+    filepath = os.path.join(folder, filename)
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
+    return filepath
 
 
 def parse_book_page(book_url, soup):
@@ -94,21 +101,28 @@ def parse_book_page(book_url, soup):
     }
 
 
-def download_book(book_id, book_folder, image_folder):
+def download_book(book_id, book_folder, image_folder, try_count=1):
     book_url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(book_url, allow_redirects=False)
-    response.raise_for_status()
 
-    if response.content:
-        soup = BeautifulSoup(response.text, 'lxml')
-        book = parse_book_page(book_url, soup)
+    try:
+        response = requests.get(book_url, timeout=5)
+        response.raise_for_status()
+        check_for_redirect(response)
+    except requests.HTTPError as e:
+        print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
+        raise e
 
-        filepath = download_txt(book_id, book['title'], book_folder)
+    soup = BeautifulSoup(response.text, 'lxml')
+    book = parse_book_page(book_url, soup)
 
-        if filepath:
-            download_img(book['cover_url'], image_folder)
-            return book['title'], book['author']
-    return None, None
+    try:
+        download_txt(book_id, book['title'], book_folder)
+        download_img(book['cover_url'], image_folder)
+    except requests.HTTPError as e:
+        print(f'Книгу с id {book_id} скачать нельзя :(\n', file=sys.stderr)
+        raise e
+
+    return book['title'], book['author']
 
 
 def main():
@@ -118,8 +132,24 @@ def main():
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id + 1):
-        title, author = download_book(book_id, BOOKS_FOLDER, IMAGES_FOLDER)
-        if title:
+
+        title = ''
+        while not title:
+            try:
+                title, author = download_book(
+                    book_id,
+                    BOOKS_FOLDER,
+                    IMAGES_FOLDER
+                )
+            except requests.HTTPError:
+                break
+            except (requests.ConnectionError, requests.ReadTimeout):
+                print(
+                    f"Не могу подключиться, повтор через {RETRY_TIMEOUT} сек",
+                    file=sys.stderr
+                )
+                time.sleep(RETRY_TIMEOUT)
+        else:
             print('Название:', title)
             print('Автор:', author, end='\n\n')
 
