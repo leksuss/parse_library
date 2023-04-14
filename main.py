@@ -21,6 +21,7 @@ def read_args():
         'start_id',
         default=1,
         type=int,
+        nargs='?',
         help='''
             From which book id to download
         '''
@@ -29,6 +30,7 @@ def read_args():
         'end_id',
         default=10,
         type=int,
+        nargs='?',
         help='''
             Up to which book id to download
         '''
