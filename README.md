@@ -8,6 +8,7 @@ This tool is for download books from [tululu.org](https://tululu.org) e-library.
  - `beautifulsoup4`
  - `requests`
  - `pathvalidate`
+ - `lxml`
 
 
 ## How to install
