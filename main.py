@@ -43,8 +43,7 @@ def read_args():
 
 
 def check_for_redirect(responce):
-    if responce.status_code in (301, 302) or \
-       responce.url == 'https://tululu.org/':
+    if responce.url == 'https://tululu.org/':
         raise requests.HTTPError()
 
 
