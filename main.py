@@ -126,20 +126,6 @@ def download_book(book_id, book_folder, image_folder):
     download_txt(book_id, book['title'], book_folder)
     download_img(book['cover_url'], image_folder)
 
-    try:
-
-    except requests.HTTPError as e:
-        print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
-        raise e
-
-
-
-    try:
-
-    except requests.HTTPError as e:
-        print(f'Книгу с id {book_id} скачать нельзя :(\n', file=sys.stderr)
-        raise e
-
     return book['title'], book['author']
 
 
