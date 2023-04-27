@@ -3,3 +3,9 @@
 
 # folder with images
 /images
+
+# MacOS service files
+.DS_Store
+
+# PyCharm service files
+.idea/
