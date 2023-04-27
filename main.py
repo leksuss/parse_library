@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import time
 import sys
@@ -12,6 +13,11 @@ from pathvalidate import sanitize_filename
 BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
 RETRY_TIMEOUT = 5  # in seconds
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(message)s",
+)
 
 
 class BookPageError(requests.HTTPError):
@@ -145,22 +151,22 @@ def main():
                     IMAGES_FOLDER
                 )
             except BookPageError:
-                print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
+                logging.warning(
+                    f'[Книга не скачана]: книги #{book_id} в библиотеке нет'
+                )
                 break
             except DownloadBookError:
-                print(f'Книгу с id {book_id} скачать нельзя :(\n',
-                      file=sys.stderr)
+                logging.warning(
+                    f'[Книга не скачана]: книгу №{book_id} скачать нельзя'
+                )
                 break
             except (requests.ConnectionError, requests.ReadTimeout):
-                print(
-                    f"Не могу подключиться, повтор через {RETRY_TIMEOUT} сек",
-                    file=sys.stderr
+                logging.warning(
+                    f'Не могу подключиться, повтор через {RETRY_TIMEOUT} сек'
                 )
                 time.sleep(RETRY_TIMEOUT)
         else:
-            print('Название:', title)
-            print('Автор:', author, end='\n\n')
-
+            logging.info(f'[Книга скачана]: "{title}", автор: {author}')
 
 if __name__ == '__main__':
     main()
