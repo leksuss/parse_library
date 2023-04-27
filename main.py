@@ -14,6 +14,16 @@ IMAGES_FOLDER = 'images'
 RETRY_TIMEOUT = 5  # in seconds
 
 
+class BookPageError(requests.HTTPError):
+    "Raised when the page with book ID cannot be found"
+    pass
+
+
+class DownloadBookError(requests.HTTPError):
+    "Raised when there is no download link for book"
+    pass
+
+
 def read_args():
     parser = argparse.ArgumentParser(
         description='''
@@ -42,9 +52,12 @@ def read_args():
     return args
 
 
-def check_for_redirect(responce):
-    if responce.url == 'https://tululu.org/':
-        raise requests.HTTPError()
+def check_for_redirect(response, context=None):
+    if response.url == 'https://tululu.org/':
+        if context == 'book_page':
+            raise BookPageError
+        elif context == 'book_download':
+            raise DownloadBookError
 
 
 def download_txt(book_id, book_title, folder):
@@ -57,7 +70,7 @@ def download_txt(book_id, book_title, folder):
 
     response = requests.get(url, params=params, timeout=5)
     response.raise_for_status()
-    check_for_redirect(response)
+    check_for_redirect(response, 'book_download')
 
     filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
@@ -100,23 +113,29 @@ def parse_book_page(book_url, soup):
     }
 
 
-def download_book(book_id, book_folder, image_folder, try_count=1):
+def download_book(book_id, book_folder, image_folder):
     book_url = f'https://tululu.org/b{book_id}/'
 
-    try:
-        response = requests.get(book_url, timeout=5)
-        response.raise_for_status()
-        check_for_redirect(response)
-    except requests.HTTPError as e:
-        print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
-        raise e
+    response = requests.get(book_url, timeout=5)
+    response.raise_for_status()
+    check_for_redirect(response, 'book_page')
 
     soup = BeautifulSoup(response.text, 'lxml')
     book = parse_book_page(book_url, soup)
 
+    download_txt(book_id, book['title'], book_folder)
+    download_img(book['cover_url'], image_folder)
+
     try:
-        download_txt(book_id, book['title'], book_folder)
-        download_img(book['cover_url'], image_folder)
+
+    except requests.HTTPError as e:
+        print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
+        raise e
+
+
+
+    try:
+
     except requests.HTTPError as e:
         print(f'Книгу с id {book_id} скачать нельзя :(\n', file=sys.stderr)
         raise e
@@ -131,16 +150,20 @@ def main():
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id + 1):
-
-        title = ''
-        while not title:
+        title = author = ''
+        while not (title or author):
             try:
                 title, author = download_book(
                     book_id,
                     BOOKS_FOLDER,
                     IMAGES_FOLDER
                 )
-            except requests.HTTPError:
+            except BookPageError:
+                print(f'Книги с id {book_id} в библиотеке нет\n', file=sys.stderr)
+                break
+            except DownloadBookError:
+                print(f'Книгу с id {book_id} скачать нельзя :(\n',
+                      file=sys.stderr)
                 break
             except (requests.ConnectionError, requests.ReadTimeout):
                 print(
