@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 import time
-import sys
 from urllib.parse import urljoin, urlsplit, unquote
 
 import requests
@@ -14,10 +13,7 @@ BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
 RETRY_TIMEOUT = 5  # in seconds
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(message)s",
-)
+logger = logging.getLogger(__file__)
 
 
 class BookPageError(requests.HTTPError):
@@ -65,7 +61,7 @@ def check_for_redirect(response, exception_type=None):
 
 def download_txt(book_id, book_title, folder):
 
-    filename = f"{book_id}. {sanitize_filename(book_title)}.txt"
+    filename = f'{book_id}. {sanitize_filename(book_title)}.txt'
     url = 'https://tululu.org/txt.php'
     params = {
         'id': book_id,
@@ -135,6 +131,13 @@ def download_book(book_id, book_folder, image_folder):
 def main():
     args = read_args()
 
+    handler = logging.StreamHandler()
+    handler.setFormatter(
+        logging.Formatter(
+            '%(asctime)s %(message)s'))
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
+
     os.makedirs(BOOKS_FOLDER, exist_ok=True)
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
@@ -148,22 +151,22 @@ def main():
                     IMAGES_FOLDER
                 )
             except BookPageError:
-                logging.warning(
+                logger.warning(
                     f'[Книга не скачана]: книги #{book_id} в библиотеке нет'
                 )
                 break
             except DownloadBookError:
-                logging.warning(
+                logger.warning(
                     f'[Книга не скачана]: книгу №{book_id} скачать нельзя'
                 )
                 break
             except (requests.ConnectionError, requests.ReadTimeout):
-                logging.warning(
+                logger.warning(
                     f'Не могу подключиться, повтор через {RETRY_TIMEOUT} сек'
                 )
                 time.sleep(RETRY_TIMEOUT)
         else:
-            logging.info(f'[Книга скачана]: "{title}", автор: {author}')
+            logger.info(f'[Книга скачана]: "{title}", автор: {author}')
 
 if __name__ == '__main__':
     main()
