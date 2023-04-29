@@ -21,12 +21,12 @@ logging.basicConfig(
 
 
 class BookPageError(requests.HTTPError):
-    "Raised when the page with book ID cannot be found"
+    """Raised when the page with book ID cannot be found"""
     pass
 
 
 class DownloadBookError(requests.HTTPError):
-    "Raised when there is no download link for book"
+    """Raised when there is no download link for book"""
     pass
 
 
@@ -58,12 +58,9 @@ def read_args():
     return args
 
 
-def check_for_redirect(response, context=None):
+def check_for_redirect(response, exception_type=None):
     if response.url == 'https://tululu.org/':
-        if context == 'book_page':
-            raise BookPageError
-        elif context == 'book_download':
-            raise DownloadBookError
+         raise exception_type
 
 
 def download_txt(book_id, book_title, folder):
@@ -76,7 +73,7 @@ def download_txt(book_id, book_title, folder):
 
     response = requests.get(url, params=params, timeout=5)
     response.raise_for_status()
-    check_for_redirect(response, 'book_download')
+    check_for_redirect(response, DownloadBookError)
 
     filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
@@ -124,7 +121,7 @@ def download_book(book_id, book_folder, image_folder):
 
     response = requests.get(book_url, timeout=5)
     response.raise_for_status()
-    check_for_redirect(response, 'book_page')
+    check_for_redirect(response, BookPageError)
 
     soup = BeautifulSoup(response.text, 'lxml')
     book = parse_book_page(book_url, soup)
