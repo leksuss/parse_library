@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import downloader
 
 SITE_URL = 'https://tululu.org'
-PAGES_TO_DOWNLOAD = 1
+PAGES_TO_DOWNLOAD = 4
 FANTASTIC_SECTION_URI = 'l55'
 BOOK_JSON_FLE = 'books.json'
 
