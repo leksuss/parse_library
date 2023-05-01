@@ -95,8 +95,8 @@ def parse_book_page(book_url, soup):
     genres_links = soup.find('span', class_='d_book').find_all('a')
     genres = [genre.text.strip() for genre in genres_links]
 
-    cover_uri = soup.find(class_='bookimage').find('img')['src']
-    cover_url = urljoin(book_url, cover_uri)
+    img_uri = soup.find(class_='bookimage').find('img')['src']
+    img_url = urljoin(book_url, img_uri)
 
     comments = []
     raw_comments = soup.find_all(class_='texts')
@@ -107,8 +107,8 @@ def parse_book_page(book_url, soup):
     return {
         'title': title.strip(),
         'author': author.strip(),
-        'genre': genres,
-        'cover_url': cover_url,
+        'genres': genres,
+        'img_url': img_url,
         'comments': comments,
     }
 
@@ -123,8 +123,9 @@ def download_book(book_id, book_folder, image_folder):
     soup = BeautifulSoup(response.text, 'lxml')
     book = parse_book_page(book_url, soup)
 
-    download_txt(book_id, book['title'], book_folder)
-    download_img(book['cover_url'], image_folder)
+    book['book_path'] = download_txt(book_id, book['title'], book_folder)
+    book['img_src'] = download_img(book['img_url'], image_folder)
+    del book['img_url']
 
     return book
 
