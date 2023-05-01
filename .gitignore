@@ -4,8 +4,14 @@
 # folder with images
 /images
 
+# json file with books
+books.json
+
 # MacOS service files
 .DS_Store
 
 # PyCharm service files
 .idea/
+
+# python files
+__pycache__/
