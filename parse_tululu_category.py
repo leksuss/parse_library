@@ -24,14 +24,12 @@ def get_page_content(page_url):
 
 
 def get_book_urls_in_page(soup, site_url):
-    book_cards = soup.find(id='content').find_all('table')
+    book_cards = soup.select('#content table')
     book_urls = []
     for book_card in book_cards:
-        tds = book_card.find_all('td')
-        link = tds[1].find('a')['href']
+        link = book_card.select_one('td+td a')['href']
         book_urls.append(urljoin(site_url, link))
     return book_urls
-
 
 def main():
     handler = logging.StreamHandler()
@@ -72,8 +70,8 @@ def main():
                     break
                 except (requests.ConnectionError, requests.ReadTimeout):
                     logger.warning(
-                        f'''Не подключиться, \
-                            повтор через {downloader.RETRY_TIMEOUT} сек'''
+                        f'Не подключиться, \
+                            повтор через {downloader.RETRY_TIMEOUT} сек'
                     )
                     time.sleep(downloader.RETRY_TIMEOUT)
             else:

@@ -90,19 +90,16 @@ def download_img(url, folder):
 
 
 def parse_book_page(book_url, soup):
-    title, author = soup.find(id='content').find('h1').text.split('::')
+    title, author = soup.select_one('#content h1').text.split('::')
 
-    genres_links = soup.find('span', class_='d_book').find_all('a')
+    genres_links = soup.select('span.d_book a')
     genres = [genre.text.strip() for genre in genres_links]
 
-    img_uri = soup.find(class_='bookimage').find('img')['src']
+    img_uri = soup.select_one('.bookimage img')['src']
     img_url = urljoin(book_url, img_uri)
 
-    comments = []
-    raw_comments = soup.find_all(class_='texts')
-    for raw_comment in raw_comments:
-        comment = raw_comment.find(class_='black').text.strip()
-        comments.append(comment)
+    raw_comments = soup.select('.texts .black')
+    comments = [raw_comment.text.strip() for raw_comment in raw_comments]
 
     return {
         'title': title.strip(),
