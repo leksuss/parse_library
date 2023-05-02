@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -8,17 +9,48 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 import downloader
+from error_handlers import BookPageError, DownloadBookError, ChapterPageError
 
 SITE_URL = 'https://tululu.org'
-PAGES_TO_DOWNLOAD = 4
 FANTASTIC_SECTION_URI = 'l55'
 BOOK_JSON_FLE = 'books.json'
 
 logger = logging.getLogger(__file__)
 
 
+def read_args():
+    parser = argparse.ArgumentParser(
+        description='''
+            Download books from from fantastic chapter tululu.org e-library 
+        '''
+    )
+    parser.add_argument(
+        '--start_page',
+        default=1,
+        type=int,
+        nargs='?',
+        help='''
+            From which page id to download
+        '''
+    )
+    parser.add_argument(
+        '--end_page',
+        default=10**6,
+        type=int,
+        nargs='?',
+        help='''
+            Up to which page id to download
+        '''
+    )
+    args = parser.parse_args()
+    return args
+
+
 def get_page_content(page_url):
     response = requests.get(page_url)
+    response.raise_for_status()
+    downloader.check_for_redirect(response, ChapterPageError)
+
     soup = BeautifulSoup(response.text, 'lxml')
     return soup
 
@@ -32,6 +64,8 @@ def get_book_urls_in_page(soup, site_url):
     return book_urls
 
 def main():
+    args = read_args()
+
     handler = logging.StreamHandler()
     handler.setFormatter(
         logging.Formatter(
@@ -43,9 +77,19 @@ def main():
     os.makedirs(downloader.IMAGES_FOLDER, exist_ok=True)
 
     books = []
-    for page_id in range(1, PAGES_TO_DOWNLOAD + 1):
+    for page_id in range(args.start_page, args.end_page):
         page_url = '/'.join((SITE_URL, FANTASTIC_SECTION_URI, str(page_id)))
-        soup = get_page_content(page_url)
+        soup = None
+        try:
+            soup = get_page_content(page_url)
+        except ChapterPageError:
+            logger.warning(
+                f'Страницы {page_id} нет, заканчиваем работу'
+            )
+            break
+        logger.info(
+            f'Открываем страницу № {page_id}'
+        )
         book_urls = get_book_urls_in_page(soup, SITE_URL)
         for book_url in book_urls:
             book_id =  urlparse(book_url).path.split('/')[1][1:]
@@ -57,13 +101,12 @@ def main():
                         downloader.BOOKS_FOLDER,
                         downloader.IMAGES_FOLDER
                     )
-
-                except downloader.BookPageError:
+                except BookPageError:
                     logger.warning(
                         f'[Книга не скачана]: книги #{book_id} на tululu нет'
                     )
                     break
-                except downloader.DownloadBookError:
+                except DownloadBookError:
                     logger.warning(
                         f'[Книга не скачана]: книгу №{book_id} скачать нельзя'
                     )

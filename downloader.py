@@ -8,22 +8,13 @@ import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
+from error_handlers import BookPageError, DownloadBookError
 
 BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
 RETRY_TIMEOUT = 5  # in seconds
 
 logger = logging.getLogger(__file__)
-
-
-class BookPageError(requests.HTTPError):
-    """Raised when the page with book ID cannot be found"""
-    pass
-
-
-class DownloadBookError(requests.HTTPError):
-    """Raised when there is no download link for book"""
-    pass
 
 
 def read_args():
