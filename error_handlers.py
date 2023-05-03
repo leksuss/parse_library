@@ -11,6 +11,6 @@ class DownloadBookError(requests.HTTPError):
     pass
 
 
-class ChapterPageError(requests.HTTPError):
-    """Raised when the paginaton page in chapter cannot be found"""
+class CategoryPageError(requests.HTTPError):
+    """Raised when the paginaton page in category cannot be found"""
     pass

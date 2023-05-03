@@ -9,10 +9,10 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 import downloader
-from error_handlers import BookPageError, DownloadBookError, ChapterPageError
+from error_handlers import BookPageError, DownloadBookError, CategoryPageError
 
 SITE_URL = 'https://tululu.org'
-FANTASTIC_SECTION_URI = 'l55'
+FANTASTIC_CATEGORY_URI = 'l55'
 BOOKS_FILE = 'books.json'
 
 logger = logging.getLogger(__file__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__file__)
 def read_args():
     parser = argparse.ArgumentParser(
         description='''
-            Download books from from fantastic chapter tululu.org e-library 
+            Download books from from fantastic category tululu.org e-library 
         '''
     )
     parser.add_argument(
@@ -69,7 +69,7 @@ def read_args():
 def get_page_content(page_url):
     response = requests.get(page_url)
     response.raise_for_status()
-    downloader.check_for_redirect(response, ChapterPageError)
+    downloader.check_for_redirect(response, CategoryPageError)
 
     soup = BeautifulSoup(response.text, 'lxml')
     return soup
@@ -112,10 +112,10 @@ def main():
 
     books = []
     for page_id in range(args.start_page, args.end_page):
-        page_url = '/'.join((SITE_URL, FANTASTIC_SECTION_URI, str(page_id)))
+        page_url = '/'.join((SITE_URL, FANTASTIC_CATEGORY_URI, str(page_id)))
         try:
             soup = get_page_content(page_url)
-        except ChapterPageError:
+        except CategoryPageError:
             logger.warning(
                 f'Страницы {page_id} нет, заканчиваем работу'
             )
