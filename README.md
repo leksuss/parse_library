@@ -31,7 +31,7 @@ pip3 install -r requirements.txt
 
 ## How to use
 
-We have two scripts. Script named `downloader.py` can download books and covers by it's id range. Script named `parse_tululu_category.py` can download books from certain category (Fantastic section).
+There are two scripts. Script named `downloader.py` can download books and covers by it's id range. Script named `parse_tululu_category.py` can download books from certain category (Fantastic section).
 
 ### downloader.py
 
@@ -50,7 +50,7 @@ python3 main.py 20 30
 
 ### parse_tululu_category.py
 
-This script has also creates two folders (if required, and depend on arguments) for book texts (`books`) and book covers(`images`). But also it create a json file with all metadata of each book. 
+This script also creates two folders (if required, and depend on arguments) for book texts (`books`) and book covers(`images`). But also it create a json file with all metadata of each book. 
 
 It has parameters:
  - `--start_page` - an id page from which you need to start parse books. Default is 1.
