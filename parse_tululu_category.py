@@ -13,7 +13,7 @@ from error_handlers import BookPageError, DownloadBookError, CategoryPageError
 
 SITE_URL = 'https://tululu.org'
 FANTASTIC_CATEGORY_URI = 'l55'
-BOOKS_FILE = 'books.json'
+BOOKS_FILENAME = 'books.json'
 
 logger = logging.getLogger(__file__)
 
@@ -107,8 +107,11 @@ def main():
         )
         os.makedirs(images_folder_path, exist_ok=True)
 
-    json_path = args.json_path or args.dest_folder
-    os.makedirs(json_path, exist_ok=True)
+    json_filepath = args.dest_folder
+    json_filename = BOOKS_FILENAME
+    if args.json_path:
+        json_filepath, json_filename = os.path.split(args.json_path)
+        os.makedirs(json_filepath, exist_ok=True)
 
     books = []
     for page_id in range(args.start_page, args.end_page):
@@ -156,7 +159,7 @@ def main():
                 )
                 books.append(book)
 
-    json_filepath = os.path.join(json_path, BOOKS_FILE)
+    json_filepath = os.path.join(json_filepath, json_filename)
     with open(json_filepath, 'w') as f:
         json.dump(books, f, ensure_ascii=False)
 
