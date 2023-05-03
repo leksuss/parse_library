@@ -13,7 +13,7 @@ from error_handlers import BookPageError, DownloadBookError, ChapterPageError
 
 SITE_URL = 'https://tululu.org'
 FANTASTIC_SECTION_URI = 'l55'
-BOOK_JSON_FLE = 'books.json'
+BOOKS_FILE = 'books.json'
 
 logger = logging.getLogger(__file__)
 
@@ -29,19 +29,39 @@ def read_args():
         default=1,
         type=int,
         nargs='?',
-        help='''
-            From which page id to download
-        '''
+        help='From which page id to download'
     )
     parser.add_argument(
         '--end_page',
         default=10**6,
         type=int,
         nargs='?',
-        help='''
-            Up to which page id to download
-        '''
+        help='Up to which page id to download'
     )
+    parser.add_argument(
+        '--dest_folder',
+        default='.',
+        type=str,
+        nargs='?',
+        help='Path to save parsed books'
+    )
+    parser.add_argument(
+        '--json_path',
+        default=None,
+        nargs='?',
+        help='Path to save meta information about book'
+    )
+    parser.add_argument(
+        '--skip_imgs',
+        action='store_true',
+        help='Skip download book cover image'
+    )
+    parser.add_argument(
+        '--skip_txt',
+        action='store_true',
+        help='Skip download text of book'
+    )
+
     args = parser.parse_args()
     return args
 
@@ -73,13 +93,26 @@ def main():
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
 
-    os.makedirs(downloader.BOOKS_FOLDER, exist_ok=True)
-    os.makedirs(downloader.IMAGES_FOLDER, exist_ok=True)
+    books_folder_path = None
+    if not args.skip_txt:
+        books_folder_path = os.path.join(
+            args.dest_folder, downloader.BOOKS_FOLDER
+        )
+        os.makedirs(books_folder_path, exist_ok=True)
+
+    images_folder_path = None
+    if not args.skip_imgs:
+        images_folder_path = os.path.join(
+            args.dest_folder, downloader.IMAGES_FOLDER
+        )
+        os.makedirs(images_folder_path, exist_ok=True)
+
+    json_path = args.json_path or args.dest_folder
+    os.makedirs(json_path, exist_ok=True)
 
     books = []
     for page_id in range(args.start_page, args.end_page):
         page_url = '/'.join((SITE_URL, FANTASTIC_SECTION_URI, str(page_id)))
-        soup = None
         try:
             soup = get_page_content(page_url)
         except ChapterPageError:
@@ -98,8 +131,8 @@ def main():
                 try:
                     book = downloader.download_book(
                         book_id,
-                        downloader.BOOKS_FOLDER,
-                        downloader.IMAGES_FOLDER
+                        books_folder_path,
+                        images_folder_path,
                     )
                 except BookPageError:
                     logger.warning(
@@ -123,7 +156,8 @@ def main():
                 )
                 books.append(book)
 
-    with open(BOOK_JSON_FLE, 'w') as f:
+    json_filepath = os.path.join(json_path, BOOKS_FILE)
+    with open(json_filepath, 'w') as f:
         json.dump(books, f, ensure_ascii=False)
 
 

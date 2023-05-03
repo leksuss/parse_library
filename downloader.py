@@ -101,7 +101,7 @@ def parse_book_page(book_url, soup):
     }
 
 
-def download_book(book_id, book_folder, image_folder):
+def download_book(book_id, book_folder=None, image_folder=None):
     book_url = f'https://tululu.org/b{book_id}/'
 
     response = requests.get(book_url, timeout=5)
@@ -111,8 +111,11 @@ def download_book(book_id, book_folder, image_folder):
     soup = BeautifulSoup(response.text, 'lxml')
     book = parse_book_page(book_url, soup)
 
-    book['book_path'] = download_txt(book_id, book['title'], book_folder)
-    book['img_src'] = download_img(book['img_url'], image_folder)
+    book['img_src'] = book['book_path'] = None
+    if book_folder:
+        book['book_path'] = download_txt(book_id, book['title'], book_folder)
+    if image_folder:
+        book['img_src'] = download_img(book['img_url'], image_folder)
     del book['img_url']
 
     return book
