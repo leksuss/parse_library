@@ -117,16 +117,30 @@ def main():
     books = []
     for page_id in range(args.start_page, args.end_page):
         page_url = '/'.join((SITE_URL, FANTASTIC_CATEGORY_URI, str(page_id)))
-        try:
-            soup = get_page_content(page_url)
-        except CategoryPageError:
-            logger.warning(
-                f'Страницы {page_id} нет, заканчиваем работу'
+        soup = None
+        is_end_of_pages = False
+        while not soup:
+            try:
+                soup = get_page_content(page_url)
+            except CategoryPageError:
+                logger.warning(
+                    f'Страницы {page_id} нет, заканчиваем работу'
+                )
+                is_end_of_pages = True
+                break
+            except (requests.ConnectionError, requests.ReadTimeout):
+                logger.warning(
+                    f'Не могу подключиться, \
+                        повтор через {downloader.RETRY_TIMEOUT} сек'
+                )
+                time.sleep(downloader.RETRY_TIMEOUT)
+        else:
+            logger.info(
+                f'Открываем страницу № {page_id}'
             )
+        if is_end_of_pages:
             break
-        logger.info(
-            f'Открываем страницу № {page_id}'
-        )
+
         book_urls = get_book_urls_in_page(soup, SITE_URL)
         for book_url in book_urls:
             book_id =  urlparse(book_url).path.split('/')[1][1:]
@@ -150,7 +164,7 @@ def main():
                     break
                 except (requests.ConnectionError, requests.ReadTimeout):
                     logger.warning(
-                        f'Не подключиться, \
+                        f'Не могу подключиться, \
                             повтор через {downloader.RETRY_TIMEOUT} сек'
                     )
                     time.sleep(downloader.RETRY_TIMEOUT)
