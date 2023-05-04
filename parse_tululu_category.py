@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 import downloader
-from error_handlers import BookPageError, DownloadBookError, CategoryPageError
+from exceptions import BookPageError, DownloadBookError, CategoryPageError
 
 SITE_URL = 'https://tululu.org'
 FANTASTIC_CATEGORY_URI = 'l55'

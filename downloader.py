@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
-from error_handlers import BookPageError, DownloadBookError
+from exceptions import BookPageError, DownloadBookError
 
 BOOKS_FOLDER = 'books'
 IMAGES_FOLDER = 'images'
