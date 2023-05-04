@@ -111,7 +111,8 @@ def main():
     json_filename = BOOKS_FILENAME
     if args.json_path:
         json_filepath, json_filename = os.path.split(args.json_path)
-        os.makedirs(json_filepath, exist_ok=True)
+        if json_filepath:
+            os.makedirs(json_filepath, exist_ok=True)
 
     books = []
     for page_id in range(args.start_page, args.end_page):
