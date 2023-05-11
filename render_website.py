@@ -31,7 +31,9 @@ def main():
     server = Server()
     server.watch(
         TEMPLATE, 
-        lambda: render_page(TEMPLATE, PAGE_NAME, {'books': books}, env),
+        lambda: render_page(
+            TEMPLATE, PAGE_NAME, {'books': chunked(books, 2)}, env
+        )
     )
 
     server.serve(root='.')
