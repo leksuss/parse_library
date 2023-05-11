@@ -47,7 +47,7 @@ def read_args():
 
 def check_for_redirect(response, exception_type=None):
     if response.url == 'https://tululu.org/':
-         raise exception_type
+        raise exception_type
 
 
 def download_txt(book_id, book_title, folder):
@@ -162,6 +162,7 @@ def main():
             logger.info(
                 f'[Книга скачана]: {book["title"]}, автор: {book["author"]}'
             )
+
 
 if __name__ == '__main__':
     main()
