@@ -14,9 +14,15 @@ DIR_NAME = 'pages'
 
 def render_page(html_template, page_name, books, dir_name, env):
     template = env.get_template(html_template)
-    for i, books_chunk in enumerate(chunked(books, 20), 1):
-        rendered_content = template.render({'books': chunked(books_chunk, 2)})
-        filename = os.path.join(dir_name, f'{page_name}{i}.html')
+    chunked_books = list(chunked(books, 20))
+    pages = range(1, len(chunked_books) + 1)
+    for page_id, books_chunk in enumerate(chunked_books, 1):
+        rendered_content = template.render({
+            'books': chunked(books_chunk, 2),
+            'pages': pages,
+            'current_page': page_id,
+        })
+        filename = os.path.join(dir_name, f'{page_name}{page_id}.html')
         with open(filename, 'w', encoding="utf8") as file:
             file.write(rendered_content)
 
