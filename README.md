@@ -7,7 +7,7 @@ https://leksuss.github.io/parse_library/website/pages/index1.html
 
 1. Get the source code of library: on this pag you can see green button named 'code'. After clicking on it you should select 'Download zip' item.
 
-2. Unpack zip-archive and double click on file located at `parse_library/website/pages/index1.html`
+2. Unpack zip-archive and double click on file located at `parse_library-master/website/pages/index1.html`
 
 3. Enjoy reading!
 
@@ -25,7 +25,7 @@ https://leksuss.github.io/parse_library/website/pages/index1.html
  - `more-itertools`
 
 
-### How to install
+### How to setup
 
 Get the source code of this repo:
 ```
@@ -70,7 +70,7 @@ It has parameters:
  - `--start_page` - an id page from which you need to start parse books. Default is 1.
  - `--end_page` - to which page id you need to parse books (not inclusively). if not set, script will download all pages till the end
  - `--dest_folder` - path to save parsed books, where is `books`, `images` folders and json file `books.json` will be located. Default is current directory.
- - `--skip_images` - flag to skip downloading book covers. Default is `False`, i.e. not skip
+ - `--skip_imgs` - flag to skip downloading book covers. Default is `False`, i.e. not skip
  - `--skip_txt` - flat to skip downloading book texts. Default is `False`, i.e. not skip
  - `--json_path` - custom path to json file with books metadata. Overwrites `--dest_folder` param for json file if set.
 
@@ -81,5 +81,5 @@ python3 parse_tululu_category.py --start_page 700 --dest_folder ~/fantastic_book
 python3 parse_tululu_category.py --end_page 4 --skip_imgs --skip_txt --json_path ~/path/to/json/folder/books.json
 ```
 
-### Goals
+## Goals
 This project is made for study purpose.
