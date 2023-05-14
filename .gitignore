@@ -1,8 +1,8 @@
 # folder with books
-/books
+# /books
 
 # folder with images
-/images
+# /images
 
 # json file with books
 books.json
