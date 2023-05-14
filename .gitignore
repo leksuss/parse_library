@@ -5,7 +5,7 @@
 # /images
 
 # json file with books
-books.json
+# books.json
 
 # MacOS service files
 .DS_Store
