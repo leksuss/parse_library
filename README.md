@@ -10,6 +10,7 @@ https://leksuss.github.io/parse_library/website/pages/index1.html
 2. Unpack zip-archive and double click on file located at `parse_library-master/website/pages/index1.html`
 
 It looks like this:
+
 <img src="https://github.com/leksuss/parse_library/blob/master/.github/library_website_example.png" width="700">
 
 ## How to install
