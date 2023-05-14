@@ -1,20 +1,31 @@
 # Book Downloader
 
-This tool is for download books from [tululu.org](https://tululu.org) e-library. It also has the website as result of using this tool.
+This tool is for download books from [tululu.org](https://tululu.org) e-library. It also has the published version of website as result of using this tool located here:
+https://leksuss.github.io/parse_library/website/pages/index1.html
 
-## How to download books from website
+## How to download and run local copy of this library
 
+1. Get the source code of library: on this pag you can see green button named 'code'. After clicking on it you should select 'Download zip' item.
 
-## Requirements
+2. Unpack zip-archive and double click on file located at `parse_library/website/pages/index1.html`
+
+3. Enjoy reading!
+
+## How to install
+
+### Requirements
 
  - python3.6+
  - `beautifulsoup4`
  - `requests`
  - `pathvalidate`
  - `lxml`
+ - `jinja2`
+ - `livereload`
+ - `more-itertools`
 
 
-## How to install
+### How to install
 
 Get the source code of this repo:
 ```
