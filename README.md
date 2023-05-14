@@ -1,6 +1,9 @@
 # Book Downloader
 
-This tool is for download books from [tululu.org](https://tululu.org) e-library.
+This tool is for download books from [tululu.org](https://tululu.org) e-library. It also has the website as result of using this tool.
+
+## How to download books from website
+
 
 ## Requirements
 
@@ -29,7 +32,7 @@ Python3 should be already installed. Then use pip (or pip3, if there is a confli
 pip3 install -r requirements.txt
 ```
 
-## How to use
+## How to download more books from library
 
 There are two scripts. Script named `downloader.py` can download books and covers by it's id range. Script named `parse_tululu_category.py` can download books from certain category (Fantastic section).
 
@@ -66,3 +69,6 @@ python3 parse_tululu_category.py --start_page 301 --end_page 303 --dest_folder ~
 python3 parse_tululu_category.py --start_page 700 --dest_folder ~/fantastic_books --json_path ~/fantastic_books/json_folder/data.json --skip_imgs
 python3 parse_tululu_category.py --end_page 4 --skip_imgs --skip_txt --json_path ~/path/to/json/folder/books.json
 ```
+
+### Goals
+This project is made for study purpose.
