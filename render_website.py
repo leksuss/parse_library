@@ -10,11 +10,12 @@ import parse_tululu_category
 TEMPLATE = 'template.html'
 WEBSITE_DIR = 'website'
 PAGES_SUBDIR = 'pages'
+BOOKS_PER_PAGE = 20
 
 
-def render_page(html_template, books, pages_dir, env):
+def render_page(html_template, books, pages_dir, books_per_page, env):
     template = env.get_template(html_template)
-    chunked_books = list(chunked(books, 20))
+    chunked_books = list(chunked(books, books_per_page))
     pages = range(1, len(chunked_books) + 1)
 
     for page_id, books_chunk in enumerate(chunked_books, 1):
@@ -43,12 +44,13 @@ def main():
     with open(books_filepath, 'r') as f:
         books = json.load(f)
 
-    render_page(TEMPLATE, books, pages_dir, env)
-    server = Server()
-    server.watch(
-        TEMPLATE, 
-        lambda: render_page(TEMPLATE, books, pages_dir, env),
+    run_render = lambda: render_page(
+        TEMPLATE, books, pages_dir, BOOKS_PER_PAGE, env
     )
+
+    run_render()
+    server = Server()
+    server.watch(TEMPLATE, run_render())
     server.serve(root=WEBSITE_DIR)
 
 if __name__ == '__main__':
