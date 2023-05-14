@@ -50,7 +50,7 @@ def check_for_redirect(response, exception_type=None):
         raise exception_type
 
 
-def download_txt(book_id, book_title, folder):
+def download_txt(book_id, book_title, folder, relative_folder=BOOKS_FOLDER):
 
     filename = f'{book_id}. {sanitize_filename(book_title)}.txt'
     url = 'https://tululu.org/txt.php'
@@ -65,10 +65,10 @@ def download_txt(book_id, book_title, folder):
     filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
-    return filepath
+    return os.path.join(relative_folder, filename)
 
 
-def download_img(url, folder):
+def download_img(url, folder, relative_folder=IMAGES_FOLDER):
     response = requests.get(url, timeout=5)
     response.raise_for_status()
     check_for_redirect(response)
@@ -77,7 +77,7 @@ def download_img(url, folder):
     filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
-    return filepath
+    return os.path.join(relative_folder, filename)
 
 
 def parse_book_page(book_url, soup):
