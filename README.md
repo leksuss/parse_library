@@ -25,7 +25,7 @@ https://leksuss.github.io/parse_library/website/pages/index1.html
  - `more-itertools`
 
 
-### How to setup
+### How to setup and run
 
 Get the source code of this repo:
 ```
@@ -42,6 +42,13 @@ Python3 should be already installed. Then use pip (or pip3, if there is a confli
 # If you would like to install dependencies inside virtual environment, you should create it first.
 pip3 install -r requirements.txt
 ```
+Run simple webserver:
+```
+python3 render_website.py
+```
+
+
+
 
 ## How to download more books from library
 
@@ -54,12 +61,12 @@ Books are downloaded to `books` folder, and book covers are downloaded to `image
 
 Run script without arguments:
 ```
-python3 main.py
+python3 downloader.py
 ```
 
 Run script with arguments:
 ```
-python3 main.py 20 30
+python3 downloader.py 20 30
 ```
 
 ### parse_tululu_category.py
