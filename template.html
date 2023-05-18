@@ -33,30 +33,30 @@
   </nav>
   <div class="container">
     <div class="row">
-      {% for book_pair in books %}
-      {% for book in book_pair %}
-      <div class="col">
-        <div class="card mb-3" style="max-width: 540px;">
-          <div class="row no-gutters">
-            <div class="col-md-4">
-              <img src="../media/{{ book.img_src|urlencode }}" class="card-img" alt="{{ book.title }}">
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{{ book.title }}</h5>
-                <p class="card-text">
-                  {% for genre in book.genres %}
-                    <span class="badge badge-light">{{ genre }}</span>
-                  {% endfor %}
-                </p>
-                <p class="card-text"><a href="../media/{{ book.book_path|urlencode }}" target="_blank">Читать</a></p>
+      {% for book_cards_chunk in book_cards %}
+        {% for book_card in book_cards_chunk %}
+          <div class="col">
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="../media/{{ book_card.img_src|urlencode }}" class="card-img" alt="{{ book_card.title }}">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ book_card.title }}</h5>
+                    <p class="card-text">
+                      {% for book_genre in book_card.genres %}
+                        <span class="badge badge-light">{{ book_genre }}</span>
+                      {% endfor %}
+                    </p>
+                    <p class="card-text"><a href="../media/{{ book_card.book_path|urlencode }}" target="_blank">Читать</a></p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      {% endfor %}
-      <div class="w-100"></div>
+        {% endfor %}
+        <div class="w-100"></div>
       {% endfor %}
     </div>
   </div>

@@ -10,22 +10,30 @@ import parse_tululu_category
 TEMPLATE = 'template.html'
 WEBSITE_DIR = 'website'
 PAGES_SUBDIR = 'pages'
-BOOKS_PER_PAGE = 20
+BOOK_CARDS_PER_PAGE = 20
+COLUMNS_PER_PAGE = 2
 
 
-def render_page(html_template, books, pages_dir, books_per_page, env):
+def render_page(
+        html_template,
+        book_cards,
+        pages_dir,
+        book_cards_per_page,
+        columns_per_page,
+        env,
+    ):
     template = env.get_template(html_template)
-    chunked_books = list(chunked(books, books_per_page))
-    pages = range(1, len(chunked_books) + 1)
+    chunked_book_cards = list(chunked(book_cards, book_cards_per_page))
+    pages = range(1, len(chunked_book_cards) + 1)
 
-    for page_id, books_chunk in enumerate(chunked_books, 1):
+    for page_id, book_cards_chunk in enumerate(chunked_book_cards, 1):
         rendered_content = template.render({
-            'books': list(chunked(books_chunk, 2)),
+            'book_cards': list(chunked(book_cards_chunk, columns_per_page)),
             'pages': pages,
             'current_page': page_id,
         })
-        filename = os.path.join(pages_dir, f'index{page_id}.html')
-        with open(filename, 'w', encoding="utf8") as file:
+        filepath = os.path.join(pages_dir, f'index{page_id}.html')
+        with open(filepath, 'w', encoding="utf8") as file:
             file.write(rendered_content)
 
 
@@ -38,14 +46,19 @@ def main():
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    books_filepath = os.path.join(
+    book_descriptions_filepath = os.path.join(
         WEBSITE_DIR, parse_tululu_category.BOOKS_FILENAME
     )
-    with open(books_filepath, 'r') as f:
-        books = json.load(f)
+    with open(book_descriptions_filepath, 'r') as f:
+        book_descriptions = json.load(f)
 
     run_render = lambda: render_page(
-        TEMPLATE, books, pages_dir, BOOKS_PER_PAGE, env
+        TEMPLATE,
+        book_descriptions,
+        pages_dir,
+        BOOK_CARDS_PER_PAGE,
+        COLUMNS_PER_PAGE,
+        env,
     )
 
     run_render()
