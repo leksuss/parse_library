@@ -49,7 +49,7 @@ Run simple webserver:
 python3 render_website.py
 ```
 
-
+And then open your favorite browser and type in the address bar this url [http://127.0.0.1:5500/pages/index1.html](http://127.0.0.1:5500/pages/index1.html)
 
 
 ## How to download more books from library
