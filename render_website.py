@@ -33,7 +33,7 @@ def render_page(
             'current_page': page_id,
         })
         filepath = os.path.join(pages_dir, f'index{page_id}.html')
-        with open(filepath, 'w', encoding="utf8") as file:
+        with open(filepath, 'w', encoding='utf8') as file:
             file.write(rendered_content)
 
 
