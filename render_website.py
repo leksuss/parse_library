@@ -63,7 +63,7 @@ def main():
 
     run_render()
     server = Server()
-    server.watch(TEMPLATE, run_render())
+    server.watch(TEMPLATE, run_render)
     server.serve(root=WEBSITE_DIR)
 
 if __name__ == '__main__':
